@@ -16,31 +16,41 @@ namespace CRUDWithIssuesCore.Controllers
             context = dbContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Details(int id)
         {
-            List<Student> products = StudentDb.GetStudents(context);
-            return View();
+            Student stu = await StudentDb.GetStudent(context, id);
+            return View(stu);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            List<Student> products = await StudentDb.GetStudents(context);
+            return View(products);
+        }
+
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(Student p)
+        public async Task< IActionResult> Create(Student p)
         {
             if (ModelState.IsValid)
             {
-                StudentDb.Add(p, context);
+               await StudentDb.Add(p, context);
                 ViewData["Message"] = $"{p.Name} was added!";
-                return View();
+               
+                return RedirectToAction("Index");
             }
 
             //Show web page with errors
             return View(p);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             //get the product by id
@@ -57,13 +67,13 @@ namespace CRUDWithIssuesCore.Controllers
             {
                 await StudentDb.Update(context, p);
                 ViewData["Message"] = "Product Updated!";
-                return View(p);
                 return RedirectToAction("Index");
             }
             //return view with errors
             return View(p);
         }
 
+        [HttpGet]
         public async Task< IActionResult> Delete(int id)
         {
             Student p = await StudentDb.GetStudent(context, id);
